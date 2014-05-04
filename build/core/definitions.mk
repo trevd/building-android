@@ -5,12 +5,12 @@
 ###########################################################
 ifdef ANDROID_BUILD_TOP
 $(info ANDROID_BUILD_TOP set using absolute paths)
-CLEAR_AUTOTOOLS_VARS:= $(ANDROID_BUILD_TOP)/vendor/extensions/build/core/clear_autotools_vars.mk
-BUILD_AUTOTOOLS:= $(ANDROID_BUILD_TOP)/vendor/extensions/build/core/autotools.mk
+CLEAR_AUTOTOOLS_VARS:= $(ANDROID_BUILD_TOP)/vendor/*/build/core/clear_autotools_vars.mk
+BUILD_AUTOTOOLS:= $(ANDROID_BUILD_TOP)/vendor/*/build/core/autotools.mk
 else
 $(info ANDROID_BUILD_TOP not set using relative paths)
-CLEAR_AUTOTOOLS_VARS:= vendor/extensions/build/core/clear_autotools_vars.mk
-BUILD_AUTOTOOLS:= vendor/extensions/build/core/autotools.mk
+CLEAR_AUTOTOOLS_VARS:= vendor/*/build/core/clear_autotools_vars.mk
+BUILD_AUTOTOOLS:= vendor/*/build/core/autotools.mk
 endif
 
 
