@@ -2,7 +2,7 @@
 $(call $(clear-autotools-vars))
 TARGET_OUT_AUTOTOOLS := $(PRODUCT_OUT)/autotools
 LOCAL_MODULE_CLASS := AUTOTOOLS
-LOCAL_MODULE_SUFFIX := -autotools
+LOCAL_MODULE_SUFFIX :=
 
 include build/core/base_rules.mk
 
@@ -105,7 +105,7 @@ autotools_env_vars_base := \
 							STRIP="$(autotools_strip)" \
 							CFLAGS="-std=c11 --sysroot=$(autotools_target_sysroot) $(autotools_c_flags)" \
 							CPPFLAGS="-std=c11 $(autotools_cpp_flags)" \
-							CXXFLAGS="$(autotools_cxx_flags)" \
+							CXXFLAGS="$(autotools_cxx_flags)"
 						
 							
 autotools_configure_env_vars := $(autotools_env_vars_base) LDFLAGS="$(autotools_ld_flags)"							
@@ -144,12 +144,12 @@ $(LOCAL_BUILT_MODULE): $(autotools_gcc_specs) $(TARGET_CRTBEGIN_SO_O) $(TARGET_C
 	$(hide) echo "Autotools: gcc specs			: $(autotools_gcc_specs_arg)"
 	$(hide) echo "Autotools: make targets		: $(autotools_make_targets)"
 	$(hide) echo "Autotools: autotools_configure_env_vars		: $(autotools_configure_env_vars)"
-	$(hide) rm -rf $@
-	$(hide) mkdir -p $@
+	$(hide) rm -rf $(dir $@)
+	$(hide) mkdir -p $(dir $@)
 	$(hide) ln -sf $(autotools_target_sysroot_source) $(autotools_target_sysroot)
 	$(hide) cp $(android_config_h) $(autotools_android_config_h)
 	$(hide) $(autotools_ltmain)
-	$(hide) cd $@ && \
+	$(hide) cd $(dir $@) && \
 	$(autotools_configure_env_vars) \
 	$(autotools_configure) \
 	$(autotools_configure_target) $(autotools_configure_host) $(autotools_configure_build) \
