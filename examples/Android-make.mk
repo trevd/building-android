@@ -1,5 +1,0 @@
-LOCAL_PATH := $(call my-dir)
-include $(CLEAR_AUTOTOOLS_VARS)
-LOCAL_MODULE := make
-LOCAL_CONFIGURE_MAKE_TARGETS := update all
-include $(BUILD_AUTOTOOLS)
