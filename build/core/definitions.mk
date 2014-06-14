@@ -1,4 +1,4 @@
-
+$(info "include $(PWD))
 ###########################################################
 ## Check to see if ANDROID_BUILD_TOP is set. use absolute
 ## paths if it is
@@ -79,3 +79,19 @@ autotools_make_targets :=
 autotools_ltmain :=
 autotools_configure_exclude_define := 
 endef
+
+
+
+## Stash the old expand-required-modules recipe before
+## defining a new one.
+define expand-required-modules-old=$(value expand-required-modules)
+endef
+
+## The new expand-required-modules filters out any
+## Packages defined by PRODUCT_PACKAGES_FILTER
+define expand-required-modules
+$(info expand-required-modules PRODUCT_PACKAGES_FILTER=$(PRODUCT_PACKAGES_FILTER))\
+$(call expand-required-modules-old,$(1),$(2))\
+$(eval $(1) := $(filter-out $(PRODUCT_PACKAGES_FILTER),$($(1))))
+endef
+
