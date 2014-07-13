@@ -1,0 +1,81 @@
+#!/bin/bash
+#
+# Namee : build-aosp-host-binaries 
+# Description : A Convient script to build android aosp host binaries
+#               without syncing the full platform sources
+#
+# Copyright (C) 2014 Trevor Drake
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# 
+# Assumes you know what dependencies a specific modules has.
+# If you are missing some dependencies the build will fail
+# You can generally figure it out from the error out
+# http://androidxref.com is also an handy resource :)
+#
+#
+# usage : build-aosp-host-binaries <module> <branch> <source repositories>
+#
+# examples 
+# #1 Sqlite - sqlite3 has a dependency on liblog so need both the
+#             external/sqlite source repo as well as system/core for liblog
+#
+# ./build-aosp-host-binaries sqlite3 master external/sqlite system/core
+#
+# #2 adb - adb is located in the system/core repository and depends on 
+#	   libunz libcrytpo_static, which can be found in external/zlib 
+#          and external/openssl repectively
+#
+# ./build-aosp-host-binaries adb master external/openssl external/zlib system/core
+#
+# #3 mkbootfs - mkbootfs doesn't have any external dependencies.
+#               so we only need the source repository which is system/core
+#
+#
+# /build-aosp-host-binaries mkbootfs master system/core
+
+# use the first argument as the module name
+# e.g adb mkbootfs or whatever 
+LOCAL_MODULE=$1
+# Select a branch 
+LOCAL_BRANCH=$2
+# discard the first argument
+shift 2
+# Glob the rest of the arguments as local Dependencies
+# Also add build external/stlport and external/libcxx 
+# as they seem to be required by most projects
+LOCAL_DEPENDS="$* build external/stlport external/libcxx"
+
+# Make a temporary build directory
+TMPDIR=`mktemp -dt quick.XXXXXXXXXX`
+echo $TMPDIR
+
+# Shallow clone the repos  into the temp directory 
+# --depth 1 automatically set --single-branch on
+for gr in $LOCAL_DEPENDS; 
+    do 
+	git clone --depth 1 --branch $LOCAL_BRANCH https://android.googlesource.com/platform/$gr $TMPDIR/$gr; 
+    done 
+
+# A Cheap trick to disable any target builds which may exist for the modules Android.mk
+cat /dev/null > $TMPDIR/build/core/static_library.mk > $TMPDIR/build/core/shared_library.mk > $TMPDIR/build/core/executable.mk
+
+# Usual android build system envsetup nonsense
+# We don't need to do lunch as we are not building for a target
+. $TMPDIR/build/envsetup.sh
+
+
+# use the build systems m command as we don't have a top level Makefile
+time m -C$TMPDIR  -j16 $LOCAL_MODULE 
